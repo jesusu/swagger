@@ -1,0 +1,702 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CNT",
+    "description": "API Description",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Contact Name",
+      "email": "your@email.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://oxxodev.apigw-aw-us.webmethods.io/gateway",
+      "description": "DEV"
+    },
+    {
+      "url": "https://oxxouat.apigw-aw-us.webmethods.io/gateway",
+      "description": "UAT"
+    },
+    {
+      "url": "https://oxxoprod.apigw-aw-us.webmethods.io/gateway",
+      "description": "PROD"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "OpenID": []
+    },
+    {
+      "OAuth2": [
+        "read",
+        "write"
+      ]
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      },
+      "OpenID": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://example.com/.well-known/openid-configuration"
+      },
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://example.com/oauth/authorize",
+            "tokenUrl": "https://example.com/oauth/token",
+            "scopes": {
+              "read": "Grants read access",
+              "write": "Grants write access",
+              "admin": "Grants access to admin operations"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/plazas": {
+      "get": {
+        "tags": [
+          "Store Catalog"
+        ],
+        "summary": "Retrieve all active \"plazas\".",
+        "description": "Service that receives the confirmation or error message in case the operation is declined.",
+        "operationId": "retrieveActivePlazas",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plazas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "crPlaza": {
+                            "type": "string",
+                            "description": "Plaza Id.",
+                            "maxLength": 6
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Name of the Plaza.",
+                            "maxLength": 21
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "plazas": [
+                    {
+                      "crPlaza": "10BGA",
+                      "name": "Bogota"
+                    },
+                    {
+                      "crPlaza": "10MON",
+                      "name": "Monterrey"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request",
+                      "enum": [
+                        "30:Error de Formato",
+                        "60:Parametros incorrectos"
+                      ]
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Invalid request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error",
+                      "enum": [
+                        "1:No es posible realizar la operación",
+                        "15:Problema en base de datos"
+                      ]
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Internal Server Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plazas/{plazaId}/stores": {
+      "get": {
+        "tags": [
+          "Store Catalog"
+        ],
+        "summary": "Retrieves all stores information from a \"Plaza\".",
+        "description": "Service that receives the confirmation or error message in case the operation is declined.",
+        "operationId": "retrievesAllStoresFromPlaza",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "plazaId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "plazaId",
+            "example": "10BGA"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stores": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "idTienda": {
+                            "type": "string",
+                            "description": "Store Id.",
+                            "maxLength": 6
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Name of the Plaza.",
+                            "maxLength": 21
+                          },
+                          "crPlaza": {
+                            "type": "string",
+                            "description": "crPlaza.",
+                            "maxLength": 21
+                          },
+                          "crTienda": {
+                            "type": "string",
+                            "description": "crStore.",
+                            "maxLength": 21
+                          },
+                          "idColonia": {
+                            "type": "string",
+                            "description": "idColonia.",
+                            "maxLength": 21
+                          },
+                          "calle": {
+                            "type": "string",
+                            "description": "calle.",
+                            "maxLength": 21
+                          },
+                          "numero": {
+                            "type": "string",
+                            "description": "numero.",
+                            "maxLength": 21
+                          },
+                          "entreCalles": {
+                            "type": "string",
+                            "description": "entreCalles.",
+                            "maxLength": 21
+                          },
+                          "codigoPostal": {
+                            "type": "string",
+                            "description": "codigoPostal.",
+                            "maxLength": 21
+                          },
+                          "colonia": {
+                            "type": "string",
+                            "description": "colonia.",
+                            "maxLength": 21
+                          },
+                          "municipio": {
+                            "type": "string",
+                            "description": "municipio.",
+                            "maxLength": 21
+                          },
+                          "ciudad": {
+                            "type": "string",
+                            "description": "ciudad.",
+                            "maxLength": 21
+                          },
+                          "estado": {
+                            "type": "string",
+                            "description": "estado.",
+                            "maxLength": 21
+                          },
+                          "codigoArea": {
+                            "type": "string",
+                            "description": "codigoArea.",
+                            "maxLength": 21
+                          },
+                          "telefono": {
+                            "type": "string",
+                            "description": "telefono.",
+                            "maxLength": 21
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "stores": [
+                    {
+                      "idTienda": 26239,
+                      "nombre": "El Yerbaniz JAL",
+                      "crPlaza": "10MON",
+                      "crTienda": "500YO",
+                      "idColonia": 11147,
+                      "calle": "Jalapa",
+                      "numero": "110",
+                      "entreCalles": "Albaro Obregon y Chihuahua",
+                      "codigoPostal": "06700",
+                      "colonia": "ROMA NORTE",
+                      "municipio": "CUAUHTEMOC",
+                      "ciudad": "CIUDAD DE MEXICO",
+                      "estado": "CIUDAD DE MEXICO",
+                      "codigoArea": "555",
+                      "telefono": "5749540"
+                    },
+                    {
+                      "idTienda": 8502,
+                      "nombre": "Bellas Artes TIJ",
+                      "crPlaza": "10TIJ",
+                      "crTienda": "51WBA",
+                      "idColonia": 1768,
+                      "calle": "BLVD. BELLASARTES, ",
+                      "numero": "22508",
+                      "entreCalles": "JOSEFINA RENDON, A UN COSTADO DEL PUENTE GARITA",
+                      "codigoPostal": "22435",
+                      "colonia": "NUEVA TIJUANA",
+                      "municipio": "TIJUANA",
+                      "ciudad": "TIJUANA",
+                      "estado": "BAJA CALIFORNIA",
+                      "codigoArea": "664",
+                      "telefono": "6070492"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Folio number of the operation."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Operation Description"
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Invalid request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error",
+                      "enum": [
+                        "1:No es posible realizar la operación",
+                        "15:Problema en base de datos"
+                      ]
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Internal Server Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plazas/{plazaId}/stores/{storeId}": {
+      "get": {
+        "tags": [
+          "Store Catalog"
+        ],
+        "summary": "Retrieves an specific Store from an specific \"Plaza\".",
+        "description": "Service that receives the confirmation or error message in case the operation is declined.",
+        "operationId": "retrievesSpecificStore",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "plazaId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "plazaId",
+            "example": "10BGA"
+          },
+          {
+            "in": "path",
+            "name": "storeId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "storeId",
+            "example": "51WBA"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "store": {
+                      "type": "object",
+                      "properties": {
+                        "idTienda": {
+                          "type": "string",
+                          "description": "Store Id.",
+                          "maxLength": 6
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the Plaza.",
+                          "maxLength": 21
+                        },
+                        "crPlaza": {
+                          "type": "string",
+                          "description": "crPlaza.",
+                          "maxLength": 21
+                        },
+                        "crTienda": {
+                          "type": "string",
+                          "description": "crStore.",
+                          "maxLength": 21
+                        },
+                        "idColonia": {
+                          "type": "string",
+                          "description": "idColonia.",
+                          "maxLength": 21
+                        },
+                        "calle": {
+                          "type": "string",
+                          "description": "calle.",
+                          "maxLength": 21
+                        },
+                        "numero": {
+                          "type": "string",
+                          "description": "numero.",
+                          "maxLength": 21
+                        },
+                        "entreCalles": {
+                          "type": "string",
+                          "description": "entreCalles.",
+                          "maxLength": 21
+                        },
+                        "codigoPostal": {
+                          "type": "string",
+                          "description": "codigoPostal.",
+                          "maxLength": 21
+                        },
+                        "colonia": {
+                          "type": "string",
+                          "description": "colonia.",
+                          "maxLength": 21
+                        },
+                        "municipio": {
+                          "type": "string",
+                          "description": "municipio.",
+                          "maxLength": 21
+                        },
+                        "ciudad": {
+                          "type": "string",
+                          "description": "ciudad.",
+                          "maxLength": 21
+                        },
+                        "estado": {
+                          "type": "string",
+                          "description": "estado.",
+                          "maxLength": 21
+                        },
+                        "codigoArea": {
+                          "type": "string",
+                          "description": "codigoArea.",
+                          "maxLength": 21
+                        },
+                        "telefono": {
+                          "type": "string",
+                          "description": "telefono.",
+                          "maxLength": 21
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "store": {
+                    "idTienda": 8502,
+                    "nombre": "Bellas Artes TIJ",
+                    "crPlaza": "10TIJ",
+                    "crTienda": "51WBA",
+                    "idColonia": 1768,
+                    "calle": "BLVD. BELLASARTES, ",
+                    "numero": "22508",
+                    "entreCalles": "JOSEFINA RENDON, A UN COSTADO DEL PUENTE GARITA",
+                    "codigoPostal": "22435",
+                    "colonia": "NUEVA TIJUANA",
+                    "municipio": "TIJUANA",
+                    "ciudad": "TIJUANA",
+                    "estado": "BAJA CALIFORNIA",
+                    "codigoArea": "664",
+                    "telefono": "6070492"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request",
+                      "enum": [
+                        "30:Error de Formato",
+                        "60:Parametros incorrectos"
+                      ]
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Invalid request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unsuccessful requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "29042020145222"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error",
+                      "enum": [
+                        "1:No es posible realizar la operación",
+                        "15:Problema en base de datos"
+                      ]
+                    }
+                  }
+                },
+                "example": {
+                  "code": "29042020145222",
+                  "message": "Internal Server Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
